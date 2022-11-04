@@ -84,20 +84,16 @@ class TwoViewKCCA(BaseEstimator, MultiOutputMixin):
             # solve for generalized eigenvalue problem
             [eig_val, eig_vec] = scipy.linalg.eigh(self.A_, self.B_)
 
-            # take parts where only positive eigenvalue
-            eig_val_pos_mask = eig_val > 0.0
-            eig_val_pos = eig_val[eig_val_pos_mask]
-            eig_vec_pos = eig_vec[:, eig_val_pos_mask]
-
             # sort by eigenvalues, descending order
-            sort_ind_des = eig_val_pos.argsort()[::-1]
-            eig_val_pos_sorted = eig_val_pos[sort_ind_des]
-            eig_vec_pos_sorted = eig_vec_pos[:, sort_ind_des]
+            sort_ind_des = eig_val.argsort()[::-1]
+            eig_val_sorted = eig_val[sort_ind_des]
+            eig_vec_sorted = eig_vec[:, sort_ind_des]
 
-            # slicing arrays
-            self.eig_val_ = eig_val_pos_sorted[:self.n_components]
-            self.alpha_ = eig_vec_pos_sorted[:n_sample, :self.n_components]
-            self.beta_ = eig_vec_pos_sorted[n_sample:, :self.n_components]
+            # slicing arrays, up to the components
+            self.eig_val_ = eig_val_sorted[:self.n_components]
+            self.eig_vec_ = eig_vec_sorted[:, :self.n_components]
+            self.alpha_ = self.eig_vec_[:n_sample, :]
+            self.beta_ = self.eig_vec_[n_sample:, :]
         except LinAlgError:
             warnings.warn('LinAlgError for bad parameters, 0.0 eigenvalue and eigenvectors will be provided.')
             self.eig_val_ = np.zeros((self.n_components, ))
