@@ -115,7 +115,7 @@ class TwoViewKCCA(BaseEstimator, MultiOutputMixin):
             a, b, metric=self.kernel_name, filter_params=True, **params
         )
 
-    def transform(self, X, y=None):
+    def kernel_computing_w_fit(self, X, y=None):
         # check if fit is called
         check_is_fitted(self)
 
@@ -130,11 +130,26 @@ class TwoViewKCCA(BaseEstimator, MultiOutputMixin):
                 y = self.scaler_y_.transform(y)
             return [self.kernel_computing(X, self.fit_X, 'x'), self.kernel_computing(y, self.fit_y, 'y')]
 
+    def transform(self, X, y=None):
+        # check if fit is called
+        check_is_fitted(self)
+        self._check_x_y(X, y)
+
+        if y is None:
+            K_x = self.kernel_computing_w_fit(X, y)
+            z_x = K_x.dot(self.alpha_)
+            return z_x
+        else:
+            K_x, K_y = self.kernel_computing_w_fit(X, y)
+            z_x = K_x.dot(self.alpha_)
+            z_y = K_y.dot(self.beta_)
+            return [z_x, z_y]
+
     def score(self, X, y):
         # check if fit is called
         check_is_fitted(self)
 
-        Kx_score, Ky_score = self.transform(X, y)
+        Kx_score, Ky_score = self.kernel_computing_w_fit(X, y)
         z_x_score = Kx_score.dot(self.alpha_)
         z_y_score = Ky_score.dot(self.beta_)
 
