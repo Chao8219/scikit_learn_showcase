@@ -118,15 +118,16 @@ class TwoViewRCCA(BaseEstimator, MultiOutputMixin):
         self.z_y_ = y.dot(self.w_y_)
         return self
 
-    def transform(self, X, y=None):
+    def transform(self, X, y):
         # check if fit is called
         check_is_fitted(self)
-        self._check_x_y(X, y)
 
         if y is None:
+            X = check_array(X)
             z_x = X.dot(self.w_x_)
             return z_x
         else:
+            self._check_x_y(X, y)
             z_x = X.dot(self.w_x_)
             z_y = y.dot(self.w_y_)
             return [z_x, z_y]
