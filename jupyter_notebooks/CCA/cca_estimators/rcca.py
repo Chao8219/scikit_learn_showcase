@@ -132,6 +132,9 @@ class TwoViewRCCA(BaseEstimator, MultiOutputMixin):
             z_y = y.dot(self.w_y_)
             return [z_x, z_y]
 
+    def fit_transform(self, X, y, **kwargs):
+        self.fit(X, y, **kwargs).transform(X, y)
+
     def score(self, X, y):
         # check if fit is called
         check_is_fitted(self)

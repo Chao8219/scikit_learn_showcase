@@ -147,6 +147,9 @@ class TwoViewKCCA(BaseEstimator, MultiOutputMixin):
             z_y = K_y.dot(self.beta_)
             return [z_x, z_y]
 
+    def fit_transform(self, X, y, **kwargs):
+        self.fit(X, y, **kwargs).transform(X, y)
+
     def score(self, X, y):
         # check if fit is called
         check_is_fitted(self)
